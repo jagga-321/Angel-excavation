@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Angel Earthworks"/>
+<meta name="theme-color" content="#E8580A"/>
+<title>Angel Earthworks and Civil</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{background:#0D0D0D;color:#F0EDE8;font-family:'Courier New',monospace;min-height:100vh;font-size:14px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+input,select,textarea,button{font-family:inherit;font-size:14px;outline:none}
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=time]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
+select option{background:#1a1a1a;color:#F0EDE8}
+/* Smart input dropdown */
+.smart-wrap{position:relative}
+.smart-drop{position:absolute;top:100%;left:0;right:0;background:#1C1C1C;border:1px solid #333;border-radius:0 0 8px 8px;z-index:50;max-height:200px;overflow-y:auto;display:none;box-shadow:0 8px 24px #0006}
+.smart-drop.open{display:block}
+.smart-opt{padding:10px 12px;cursor:pointer;font-size:13px;color:#F0EDE8;border-bottom:1px solid #282828;display:flex;justify-content:space-between;align-items:center}
+.smart-opt:hover,.smart-opt:active{background:#282828}
+.smart-del{color:#6E6B64;font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid #333;background:none;cursor:pointer;font-family:inherit}
+.smart-del:active{color:#D93B3B;border-color:#D93B3B}
+
+/* Layout */
+#header{background:#141414;border-bottom:1px solid #282828;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+#banner{background:linear-gradient(90deg,#2A1200,#1A0900);border-bottom:1px solid #E8580A30;padding:10px 16px;display:none;justify-content:space-between;align-items:center}
+#nav{background:#141414;border-bottom:1px solid #282828;display:flex;overflow-x:auto;padding:0 4px}
+#main{padding:14px 14px 80px;max-width:860px;margin:0 auto}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:999;box-shadow:0 4px 24px #0008;white-space:nowrap;display:none;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* Nav tabs */
+.nav-tab{background:none;border:none;color:#6E6B64;padding:11px 12px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s}
+.nav-tab.active{color:#E8580A;border-bottom-color:#E8580A}
+
+/* Cards */
+.card{background:#1C1C1C;border:1px solid #282828;border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.card-click{cursor:pointer}
+
+/* Buttons */
+.btn{border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:13px;padding:10px 18px;letter-spacing:.4px;transition:opacity .15s;white-space:nowrap;border:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:#E8580A;color:#fff}
+.btn-success{background:#1A6B3C;color:#fff}
+.btn-ghost{background:transparent;color:#6E6B64;border:1px solid #282828 !important}
+.btn-danger{background:#D93B3B18;color:#D93B3B;border:1px solid #D93B3B35 !important}
+.btn-sm{font-size:11px;padding:6px 13px}
+
+/* Form elements */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label,.field-label{font-size:10px;font-weight:700;color:#6E6B64;letter-spacing:1.2px;text-transform:uppercase}
+.field input,.field select,.field textarea{background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%}
+.field textarea{resize:vertical;min-height:60px}
+.field-row{display:flex;gap:10px}
+.field-row .field{flex:1}
+
+/* Stat tiles */
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.stat{background:#1C1C1C;border:1px solid #282828;border-radius:12px;padding:14px 16px;flex:1 1 130px}
+.stat-label{font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+.stat-value{font-size:22px;font-weight:800;line-height:1.1}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+
+/* Session rows */
+.session-item{background:#1C1C1C;border:1px solid #282828;border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.session-item.selected{background:#E8580A12;border-color:#E8580A50}
+.session-item.invoiced{cursor:default}
+
+/* Modal */
+#overlay{position:fixed;inset:0;background:#000000bb;z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+#overlay.open{display:flex}
+.modal{background:#141414;border:1px solid #333;border-radius:16px;padding:24px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-head h3{font-size:16px;font-weight:800;color:#F0EDE8}
+.modal-close{background:none;border:none;color:#6E6B64;font-size:24px;cursor:pointer;line-height:1;padding:0 4px}
+
+/* Divider */
+.divider{display:flex;align-items:center;gap:10px;margin:8px 0}
+.divider span{font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap}
+.divider-line{flex:1;height:1px;background:#282828}
+
+/* Rate table */
+.rate-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #282828}
+.rate-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+
+/* Market bar */
+.mbar{margin-bottom:4px}
+.mbar-track{position:relative;height:6px;background:#282828;border-radius:3px;margin:5px 0}
+.mbar-fill{position:absolute;left:0;top:0;height:100%;border-radius:3px}
+.mbar-labels{display:flex;justify-content:space-between;font-size:10px;color:#6E6B64}
+
+/* Invoice list */
+.inv-status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+
+/* Timer */
+#timer-display{font-variant-numeric:tabular-nums;color:#E8580A;font-weight:800;font-size:16px}
+.blink{animation:blink 1.4s infinite}
+
+/* Section header */
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sec-title{font-size:13px;font-weight:800;color:#F0EDE8}
+
+/* Empty state */
+.empty{text-align:center;padding:36px 20px;color:#6E6B64}
+.empty .empty-icon{font-size:30px;margin-bottom:10px}
+
+/* After hours check */
+.check-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#C8C4BE;margin-bottom:8px}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:#F5C518}
+
+/* Invoice view */
+.inv-header{background:linear-gradient(135deg,#E8580A,#FF7A2F);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.line-items{border:1px solid #282828;border-radius:10px;overflow:hidden;margin-bottom:14px}
+.line-item-head{background:#141414;padding:8px 14px;display:flex;justify-content:space-between;font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.line-item-row{padding:10px 14px;border-bottom:1px solid #282828;display:flex;justify-content:space-between;gap:10px}
+.totals-box{background:#0D0D0D;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.pay-box{background:#141414;border-radius:10px;padding:12px 14px;font-size:12px;margin-bottom:14px}
+.session-list-inv{max-height:220px;overflow-y:auto;border:1px solid #282828;border-radius:8px;background:#0D0D0D}
+.sess-inv-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;border-bottom:1px solid #282828;transition:background .1s}
+.sess-inv-row.sel{background:#E8580A18}
+.totals-preview{background:#0D0D0D;border-radius:8px;padding:12px 14px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <div style="font-size:12px;font-weight:800;color:#E8580A;letter-spacing:2px;text-transform:uppercase">⛏ Angel Earthworks</div>
+    <div id="biz-name" style="font-size:10px;color:#6E6B64;margin-top:1px">Angel Earthworks and Civil</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div id="live-badge" style="display:none;background:#E8580A18;border:1px solid #E8580A40;border-radius:8px;padding:5px 12px;align-items:center;gap:8px">
+      <span class="blink" style="width:7px;height:7px;border-radius:50%;background:#E8580A;display:inline-block"></span>
+      <span id="timer-display">00:00:00</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('settings')" style="padding:6px 10px;font-size:14px">⚙</button>
+  </div>
+</div>
+
+<!-- ACTIVE SESSION BANNER -->
+<div id="banner">
+  <div>
+    <div style="font-size:10px;color:#E8580A;font-weight:700;letter-spacing:1.2px;text-transform:uppercase">🔴 Live Session</div>
+    <div id="banner-detail" style="font-size:13px;color:#C8C4BE;margin-top:2px"></div>
+    <div id="banner-rate" style="font-size:11px;color:#6E6B64;margin-top:1px"></div>
+  </div>
+  <button class="btn btn-danger btn-sm" onclick="stopSession()">⏹ Stop & Save</button>
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">◈ Dashboard</button>
+  <button class="nav-tab" data-tab="sessions" onclick="switchTab('sessions')">⏱ Sessions</button>
+  <button class="nav-tab" data-tab="crew" onclick="switchTab('crew')">👷 Crew</button>
+  <button class="nav-tab" data-tab="invoices" onclick="switchTab('invoices')">🧾 Invoices</button>
+  <button class="nav-tab" data-tab="rates" onclick="switchTab('rates')">💲 Rates</button>
+</div>
+
+<!-- MAIN -->
+<div id="main"></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL OVERLAY -->
+<div id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA & DEFAULTS
+// ════════════════════════════════════════════════════════
+const DR = {
+  excavatorWet:125, excavatorWetTilt:140, excavatorWetRock:155,
+  excavatorWetAuger:145, excavatorWetTrenching:130, excavatorWetCleanup:125,
+  excavatorDry:70, truckWet:130, truckWetRegional:150, truckDry:80,
+  excavatorSubWet:115, excavatorSubDry:65, truckSubWet:120,
+  minHours:4, mobilisationLocal:200, mobilisationRegional:350, afterHoursSurcharge:25
+};
+const DS = {
+  businessName:"Angel Earthworks and Civil", abn:"",
+  address:"Victor Harbor / Goolwa SA 5211", phone:"", email:"",
+  accountName:"", bsb:"", account:"", nextInvoice:1,
+  rates:{...DR}
+};
+
+// ── LocalStorage ──────────────────────────────────────
+function load(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+let sessions     = load("ae_sessions",[]);
+let crew         = load("ae_crew",[]);
+let invoices     = load("ae_invoices",[]);
+let settings     = load("ae_settings",{...DS, rates:{...DR}});
+let activeSession= load("ae_active",null);
+let selectedSess = [];
+let currentTab   = "dashboard";
+let timerInterval= null;
+
+// Merge any missing rate keys (in case old data missing new keys)
+if(!settings.rates) settings.rates = {...DR};
+Object.keys(DR).forEach(k=>{ if(settings.rates[k]===undefined) settings.rates[k]=DR[k]; });
+
+// ── Helpers ────────────────────────────────────────────
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const fmtDate=d=>d?new Date(d).toLocaleDateString("en-AU",{day:"2-digit",month:"short",year:"numeric"}):"—";
+const fmtTime=d=>d?new Date(d).toLocaleTimeString("en-AU",{hour:"2-digit",minute:"2-digit"}):"—";
+const fmtHrs=h=>{if(!h||h<=0)return"0h 0m";const hh=Math.floor(h),mm=Math.round((h-hh)*60);return mm>0?`${hh}h ${mm}m`:`${hh}h`;};
+const fmtCur=n=>"$"+Number(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",");
+const fmtInvNo=n=>"INV-"+String(n).padStart(4,"0");
+const fmtIsoDate=d=>d?new Date(d).toISOString().split("T")[0]:"";
+const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+const MACHINES=["Hitachi ZX55U","Hino 700","Both"];
+const ATTACHMENTS=["General Bucket","Trenching Bucket","Auger","Rock Breaker","Tilt Bucket","Clean-up Bucket"];
+const HIRE_TYPES=["Wet Hire","Dry Hire","Own Work"];
+const INV_STATUS=["Draft","Sent","Paid","Overdue"];
+const STATUS_COL={Draft:"#6E6B64",Sent:"#2878CC",Paid:"#22A05A",Overdue:"#D93B3B"};
+const HIRE_COL={"Wet Hire":"#E8580A","Dry Hire":"#2878CC","Own Work":"#6E6B64"};
+
+function lookupRate(machine,hireType,attachment){
+  const r=settings.rates;
+  if(hireType==="Own Work") return 0;
+  if(machine==="Hino 700") return hireType==="Dry Hire"?r.truckDry:r.truckWet;
+  if(hireType==="Dry Hire") return r.excavatorDry;
+  const att=attachment||"General Bucket";
+  if(att==="Rock Breaker")    return r.excavatorWetRock;
+  if(att==="Auger")           return r.excavatorWetAuger;
+  if(att==="Tilt Bucket")     return r.excavatorWetTilt;
+  if(att==="Trenching Bucket")return r.excavatorWetTrenching;
+  if(att==="Clean-up Bucket") return r.excavatorWetCleanup;
+  return r.excavatorWet;
+}
+
+function badge(label,color,small){
+  const p=small?"1px 7px":"2px 10px", fs=small?"10":"11";
+  return `<span class="badge" style="font-size:${fs}px;background:${color}20;color:${color};border:1px solid ${color}40;padding:${p}">${esc(label)}</span>`;
+}
+
+function divider(label){
+  return `<div class="divider"><span>${esc(label)}</span><div class="divider-line"></div></div>`;
+}
+
+function saveAll(){
+  save("ae_sessions",sessions);
+  save("ae_crew",crew);
+  save("ae_invoices",invoices);
+  save("ae_settings",settings);
+  save("ae_active",activeSession);
+}
+
+// ── Smart Input History ────────────────────────────────────────────────
+let history=load("ae_history",{clients:[],sites:[],notes:[]});
+
+function addHistory(type,val){
+  if(!val||!val.trim()) return;
+  val=val.trim();
+  if(!history[type]) history[type]=[];
+  history[type]=history[type].filter(v=>v!==val);
+  history[type].unshift(val);
+  if(history[type].length>20) history[type]=history[type].slice(0,20);
+  save("ae_history",history);
+}
+function removeHistory(type,val){
+  history[type]=(history[type]||[]).filter(v=>v!==val);
+  save("ae_history",history);
+}
+function smartInput(id,type,placeholder,value){
+  value=value||"";
+  const opts=(history[type]||[]).map(v=>`
+    <div class="smart-opt" onclick="pickSmart('${id}','${esc(v)}')">
+      <span>${esc(v)}</span>
+      <button class="smart-del" onclick="event.stopPropagation();delSmart('${id}','${type}','${esc(v)}')">✕</button>
+    </div>`).join("");
+  return `<div class="smart-wrap">
+    <input id="${id}" value="${esc(value)}" placeholder="${esc(placeholder)}"
+      style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%"
+      autocomplete="off"
+      oninput="filterSmart('${id}','${type}',this.value)"
+      onfocus="openSmartDrop('${id}')"
+      onblur="setTimeout(()=>closeSmartDrop('${id}'),200)"/>
+    <div class="smart-drop" id="${id}-drop">${opts}</div>
+  </div>`;
+}
+function openSmartDrop(id){
+  const d=document.getElementById(id+"-drop");
+  if(d&&d.children.length>0) d.classList.add("open");
+}
+function closeSmartDrop(id){
+  const d=document.getElementById(id+"-drop");
+  if(d) d.classList.remove("open");
+}
+function pickSmart(id,val){
+  const el=document.getElementById(id);
+  if(el){el.value=val;closeSmartDrop(id);}
+}
+function filterSmart(id,type,q){
+  const d=document.getElementById(id+"-drop");
+  if(!d) return;
+  const list=(history[type]||[]).filter(v=>v.toLowerCase().includes(q.toLowerCase()));
+  if(!list.length){d.classList.remove("open");return;}
+  d.innerHTML=list.map(v=>`
+    <div class="smart-opt" onclick="pickSmart('${id}','${esc(v)}')">
+      <span>${esc(v)}</span>
+      <button class="smart-del" onclick="event.stopPropagation();delSmart('${id}','${type}','${esc(v)}')">✕</button>
+    </div>`).join("");
+  d.classList.add("open");
+}
+function delSmart(id,type,val){
+  removeHistory(type,val);
+  filterSmart(id,type,document.getElementById(id)?.value||"");
+}
+
+// ── Toast ──────────────────────────────────────────────
+function toast(msg,type="success"){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.background=type==="error"?"#D93B3B":"#1A6B3C";
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2800);
+}
+
+// ── Timer ──────────────────────────────────────────────
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    if(!activeSession){clearInterval(timerInterval);return;}
+    const el=Math.floor((Date.now()-new Date(activeSession.startTime).getTime())/1000);
+    const h=Math.floor(el/3600),m=Math.floor((el%3600)/60),s=el%60;
+    const td=document.getElementById("timer-display");
+    if(td) td.textContent=String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  },1000);
+}
+
+function updateBanner(){
+  const banner=document.getElementById("banner");
+  const badge2=document.getElementById("live-badge");
+  if(activeSession){
+    banner.style.display="flex";
+    if(badge2){badge2.style.display="flex";}
+    document.getElementById("banner-detail").textContent=
+      activeSession.machine+(activeSession.attachment&&activeSession.attachment!=="General Bucket"?" · "+activeSession.attachment:"")+
+      (activeSession.client?" · "+activeSession.client:"")+
+      (activeSession.site?" · "+activeSession.site:"");
+    document.getElementById("banner-rate").textContent=
+      fmtCur(activeSession.rate)+"/hr · started "+fmtTime(activeSession.startTime);
+    startTimer();
+  } else {
+    banner.style.display="none";
+    if(badge2) badge2.style.display="none";
+    if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// SESSION ACTIONS
+// ════════════════════════════════════════════════════════
+function startSession(){
+  if(activeSession){toast("Stop the current session first","error");return;}
+  const client=document.getElementById("sf-client").value.trim();
+  if(!client){toast("Please enter a client name","error");return;}
+  const machine=document.getElementById("sf-machine").value;
+  const attachment=document.getElementById("sf-attachment")?.value||"General Bucket";
+  const hireType=document.getElementById("sf-hiretype").value;
+  const operator=document.getElementById("sf-operator").value;
+  const site=document.getElementById("sf-site").value.trim();
+  const notes=document.getElementById("sf-notes").value.trim();
+  const rate=parseFloat(document.getElementById("sf-rate").value)||settings.rates.excavatorWet;
+  const afterHours=document.getElementById("sf-afterhours")?.checked||false;
+
+  addHistory("clients",client); addHistory("sites",site); addHistory("notes",notes);
+  activeSession={id:uid(),client,machine,attachment,hireType,operator,site,notes,
+    rate,afterHours,startTime:new Date().toISOString(),status:"active",invoiced:false};
+  saveAll(); updateBanner(); closeModal();
+  toast("Session started ▶");
+  render();
+}
+
+function stopSession(){
+  if(!activeSession) return;
+  const endTime=new Date().toISOString();
+  const rawDuration=(new Date(endTime)-new Date(activeSession.startTime))/3600000;
+  // Ask for lunch break
+  openLunchModal(activeSession, endTime, rawDuration);
+}
+
+function finishSession(){
+  const session=window._lunchSession;
+  const endTime=window._lunchEnd;
+  const rawDuration=window._lunchRaw;
+  const lunchMins=window._lunchMins||0;
+  if(!session||!endTime) return;
+  const lunchHrs=lunchMins/60;
+  const duration=Math.max(0, rawDuration-lunchHrs);
+  const total=Math.round(duration*session.rate*100)/100;
+  sessions.unshift({...session,endTime,duration,total,
+    lunchBreak:lunchMins,rawDuration,status:"complete"});
+  activeSession=null;
+  saveAll(); updateBanner(); closeModal();
+  toast("Session saved — "+fmtHrs(duration)+(lunchMins>0?" (excl. "+lunchMins+"min lunch)":"")+" · "+fmtCur(total));
+  render();
+}
+
+function saveManualSession(){
+  const client=document.getElementById("mf-client").value.trim();
+  const date=document.getElementById("mf-date").value;
+  const startT=document.getElementById("mf-start").value;
+  const endT=document.getElementById("mf-end").value;
+  if(!client){toast("Please enter a client name","error");return;}
+  if(!date){toast("Please enter a date","error");return;}
+  if(!startT||!endT){toast("Please enter start and end times","error");return;}
+  const startISO=new Date(date+"T"+startT).toISOString();
+  const endISO=new Date(date+"T"+endT).toISOString();
+  if(new Date(endISO)<=new Date(startISO)){toast("End time must be after start time","error");return;}
+  const rawDuration=(new Date(endISO)-new Date(startISO))/3600000;
+  const lunchMins=parseInt(document.getElementById("mf-lunch").value)||0;
+  const duration=Math.max(0, rawDuration-(lunchMins/60));
+  const machine=document.getElementById("mf-machine").value;
+  const attachment=document.getElementById("mf-attachment")?.value||"General Bucket";
+  const hireType=document.getElementById("mf-hiretype").value;
+  const operator=document.getElementById("mf-operator").value;
+  const site=document.getElementById("mf-site").value.trim();
+  const notes=document.getElementById("mf-notes").value.trim();
+  const rate=parseFloat(document.getElementById("mf-rate").value)||settings.rates.excavatorWet;
+  const total=Math.round(duration*rate*100)/100;
+  addHistory("clients",client); addHistory("sites",site); addHistory("notes",notes);
+  sessions.unshift({id:uid(),client,machine,attachment,hireType,operator,site,notes,
+    rate,startTime:startISO,endTime:endISO,duration,lunchBreak:lunchMins,rawDuration,total,status:"complete",invoiced:false});
+  sessions.sort((a,b)=>new Date(b.startTime)-new Date(a.startTime));
+  saveAll(); closeModal(); toast("Session saved — "+fmtHrs(duration)+(lunchMins>0?" (excl. "+lunchMins+"min lunch)":"")); render();
+}
+
+function openLunchModal(session, endTime, rawDuration){
+  // Show lunch break selection before saving live session
+  const overlay=document.getElementById("overlay");
+  const title=document.getElementById("modal-title");
+  const body=document.getElementById("modal-body");
+  overlay.classList.add("open");
+  title.textContent="⏱ Stop Session";
+
+  const gross=fmtHrs(rawDuration);
+  const rate=session.rate;
+
+  body.innerHTML=`
+    <div style="background:#0D0D0D;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+      <div style="font-size:11px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Session Summary</div>
+      <div style="font-size:13px;color:#F0EDE8">${esc(session.machine)} · ${esc(session.client||"No client")}</div>
+      <div style="font-size:11px;color:#6E6B64;margin-top:2px">${fmtTime(session.startTime)} → ${fmtTime(endTime)}</div>
+      <div style="font-size:13px;color:#E8580A;font-weight:700;margin-top:6px">Gross time: ${gross}</div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Lunch Break Taken?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="lunch-grid">
+        ${[0,15,20,30,45,60].map(m=>`
+          <button class="btn btn-ghost" id="lb-${m}" onclick="selectLunch(${m})"
+            style="padding:10px 6px;font-size:12px;text-align:center">
+            ${m===0?"No Break":m+"min"}
+          </button>`).join("")}
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+        <div style="font-size:11px;color:#6E6B64;white-space:nowrap">Other:</div>
+        <input id="lunch-custom" type="number" min="0" max="120" placeholder="mins"
+          style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:8px 10px;width:80px;font-family:inherit;font-size:13px"
+          onchange="selectLunchCustom(this.value)"/>
+        <div style="font-size:11px;color:#6E6B64">minutes</div>
+      </div>
+    </div>
+
+    <div id="lunch-preview" style="background:#0D0D0D;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+        <span style="color:#6E6B64">Gross time</span>
+        <span style="color:#F0EDE8">${gross}</span>
+      </div>
+      <div id="lunch-deduct-row" style="display:none;justify-content:space-between;font-size:13px;margin-bottom:6px">
+        <span style="color:#6E6B64">Less lunch break</span>
+        <span style="color:#D93B3B" id="lunch-deduct-val">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;border-top:1px solid #282828;padding-top:10px">
+        <span style="color:#6E6B64">Billable hours</span>
+        <span style="color:#22A05A" id="lunch-billable">${gross}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:6px">
+        <span style="color:#6E6B64">Total @ ${fmtCur(rate)}/hr</span>
+        <span style="color:#22A05A;font-weight:700" id="lunch-total">${fmtCur(rawDuration*rate)}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-success" style="flex:1" id="lunch-save-btn"
+        onclick="finishSession()">
+        Save Session
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+
+  window._lunchMins=0;
+  window._lunchRaw=rawDuration;
+  window._lunchRate=rate;
+  window._lunchSession=session;
+  window._lunchEnd=endTime;
+  selectLunch(0); // highlight No Break by default
+}
+
+function _styleLunchBtn(btn,selected){
+  if(!btn) return;
+  btn.style.cssText="padding:10px 6px;font-size:12px;text-align:center;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;width:100%;border:1px solid "
+    +(selected?"#E8580A;background:#E8580A;color:#fff":"#282828;background:transparent;color:#6E6B64");
+}
+
+function selectLunch(mins){
+  window._lunchMins=mins;
+  [0,15,20,30,45,60].forEach(m=>_styleLunchBtn(document.getElementById("lb-"+m),m===mins));
+  updateLunchPreview(mins);
+}
+
+function selectLunchCustom(val){
+  const mins=parseInt(val)||0;
+  window._lunchMins=mins;
+  [0,15,20,30,45,60].forEach(m=>_styleLunchBtn(document.getElementById("lb-"+m),false));
+  updateLunchPreview(mins);
+}
+
+function updateLunchPreview(mins){
+  const raw=window._lunchRaw||0;
+  const rate=window._lunchRate||0;
+  const billable=Math.max(0,raw-(mins/60));
+  const deductRow=document.getElementById("lunch-deduct-row");
+  const deductVal=document.getElementById("lunch-deduct-val");
+  const billableEl=document.getElementById("lunch-billable");
+  const totalEl=document.getElementById("lunch-total");
+  if(deductRow) deductRow.style.display=mins>0?"flex":"none";
+  if(deductVal) deductVal.textContent="− "+mins+"min";
+  if(billableEl) billableEl.textContent=fmtHrs(billable);
+  if(totalEl) totalEl.textContent=fmtCur(billable*rate);
+  // Save button always calls finishSession() which reads window._lunchMins
+}
+
+function deleteSession(id){
+  if(!confirm("Delete this session? Cannot be undone.")) return;
+  sessions=sessions.filter(s=>s.id!==id);
+  selectedSess=selectedSess.filter(x=>x!==id);
+  saveAll(); render(); toast("Session deleted");
+}
+
+function editSession(id){
+  const s=sessions.find(x=>x.id===id);
+  if(!s||s.invoiced) return;
+  window._editId=id;
+  const overlay=document.getElementById("overlay");
+  const title=document.getElementById("modal-title");
+  const body=document.getElementById("modal-body");
+  overlay.classList.add("open");
+  title.textContent="✏️ Edit Session";
+
+  const crewOpts=`<option value="">— Select operator —</option>`+crew.map(c=>`<option value="${esc(c.name)}"${s.operator===c.name?" selected":""}>${esc(c.name)}</option>`).join("");
+  const attachOpts=ATTACHMENTS.map(a=>`<option value="${a}"${s.attachment===a?" selected":""}>${a}</option>`).join("");
+  const machineOpts=MACHINES.map(m=>`<option value="${m}"${s.machine===m?" selected":""}>${m}</option>`).join("");
+  const hireOpts=HIRE_TYPES.map(h=>`<option value="${h}"${s.hireType===h?" selected":""}>${h}</option>`).join("");
+
+  const startDate=s.startTime?new Date(s.startTime).toISOString().split("T")[0]:"";
+  const _sd=s.startTime?new Date(s.startTime):null;
+  const _ed=s.endTime?new Date(s.endTime):null;
+  const startTime=_sd?String(_sd.getHours()).padStart(2,"0")+":"+String(_sd.getMinutes()).padStart(2,"0"):"";
+  const endTime=_ed?String(_ed.getHours()).padStart(2,"0")+":"+String(_ed.getMinutes()).padStart(2,"0"):"";
+  const lunch=s.lunchBreak||0;
+
+  body.innerHTML=`
+    <div style="background:#E8580A18;border:1px solid #E8580A30;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#C8C4BE">
+      ✏️ Changes apply immediately. Session cannot be edited after invoicing.
+    </div>
+    <div class="field"><label>Client / Company</label>${smartInput("ed-client","clients","e.g. South Coast Sand & Civil",s.client)}</div>
+    <div class="field"><label>Site / Location</label>${smartInput("ed-site","sites","e.g. Goolwa North Stage 1",s.site)}</div>
+    <div class="field"><label>Date</label><input id="ed-date" type="date" value="${startDate}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%"/></div>
+    <div class="field-row">
+      <div class="field"><label>Start Time</label><input id="ed-start" type="time" value="${startTime}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%"/></div>
+      <div class="field"><label>End Time</label><input id="ed-end" type="time" value="${endTime}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%"/></div>
+    </div>
+    <div class="field"><label>Machine</label><select id="ed-machine" onchange="edMachineChange()" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%">${machineOpts}</select></div>
+    <div class="field" id="ed-att-wrap" style="${s.machine==="Hino 700"?"display:none":""}"><label>Attachment</label><select id="ed-attachment" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%">${attachOpts}</select></div>
+    <div class="field"><label>Hire Type</label><select id="ed-hiretype" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%">${hireOpts}</select></div>
+    <div class="field"><label>Operator</label><select id="ed-operator" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%">${crewOpts}</select></div>
+    <div class="field-row">
+      <div class="field"><label>Rate ($/hr ex GST)</label><input id="ed-rate" type="number" value="${s.rate}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%"/></div>
+      <div class="field"><label>Lunch Break (mins)</label><input id="ed-lunch" type="number" min="0" max="120" value="${lunch}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:10px 12px;width:100%"/></div>
+    </div>
+    <div class="field"><label>Notes</label>${smartInput("ed-notes","notes","Any notes",s.notes)}</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveEditSession()">💾 Save Changes</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+}
+
+function edMachineChange(){
+  const m=document.getElementById("ed-machine")?.value;
+  const aw=document.getElementById("ed-att-wrap");
+  if(aw) aw.style.display=m==="Hino 700"?"none":"block";
+}
+
+function saveEditSession(){
+  const id=window._editId;
+  if(!id) return;
+  const s=sessions.find(x=>x.id===id);
+  if(!s||s.invoiced){toast("Cannot edit an invoiced session","error");return;}
+
+  const client=document.getElementById("ed-client").value.trim();
+  const site=document.getElementById("ed-site").value.trim();
+  const date=document.getElementById("ed-date").value;
+  const startT=document.getElementById("ed-start").value;
+  const endT=document.getElementById("ed-end").value;
+  const machine=document.getElementById("ed-machine").value;
+  const attachment=machine==="Hino 700"?"None":(document.getElementById("ed-attachment")?.value||"General Bucket");
+  const hireType=document.getElementById("ed-hiretype").value;
+  const operator=document.getElementById("ed-operator").value;
+  const rate=parseFloat(document.getElementById("ed-rate").value)||0;
+  const lunch=parseInt(document.getElementById("ed-lunch").value)||0;
+  const notes=document.getElementById("ed-notes").value.trim();
+
+  if(!client){toast("Please enter a client name","error");return;}
+  if(!date||!startT||!endT){toast("Please enter date and times","error");return;}
+
+  const startISO=new Date(date+"T"+startT).toISOString();
+  const endISO=new Date(date+"T"+endT).toISOString();
+  if(new Date(endISO)<=new Date(startISO)){toast("End time must be after start time","error");return;}
+
+  const rawDuration=(new Date(endISO)-new Date(startISO))/3600000;
+  const duration=Math.max(0,rawDuration-(lunch/60));
+  const total=Math.round(duration*rate*100)/100;
+
+  addHistory("clients",client); addHistory("sites",site); addHistory("notes",notes);
+
+  sessions=sessions.map(x=>x.id===id
+    ?{...x,client,site,machine,attachment,hireType,operator,rate,notes,
+       startTime:startISO,endTime:endISO,rawDuration,duration,lunchBreak:lunch,total}
+    :x);
+
+  saveAll(); closeModal();
+  toast("Session updated ✅");
+  render();
+}
+
+function toggleSelectSession(id){
+  const s=sessions.find(x=>x.id===id);
+  if(s&&s.invoiced) return;
+  if(selectedSess.includes(id)) selectedSess=selectedSess.filter(x=>x!==id);
+  else selectedSess.push(id);
+  render();
+}
+
+// ════════════════════════════════════════════════════════
+// CREW ACTIONS
+// ════════════════════════════════════════════════════════
+function addCrew(){
+  const name=document.getElementById("cf-name").value.trim();
+  if(!name){toast("Please enter a name","error");return;}
+  if(crew.some(c=>c.name.toLowerCase()===name.toLowerCase())){toast("Already exists","error");return;}
+  const role=document.getElementById("cf-role").value.trim()||"Operator";
+  const rate=parseFloat(document.getElementById("cf-rate").value)||35;
+  crew.push({id:uid(),name,role,rate});
+  saveAll(); closeModal(); toast("Crew member added"); render();
+}
+
+function deleteCrew(id){
+  if(!confirm("Remove this crew member?")) return;
+  crew=crew.filter(c=>c.id!==id);
+  saveAll(); render(); toast("Crew member removed");
+}
+
+// ════════════════════════════════════════════════════════
+// INVOICE ACTIONS
+// ════════════════════════════════════════════════════════
+function buildInvoice(){
+  const client=document.getElementById("if-client").value.trim();
+  if(!client){toast("Please enter a client name","error");return;}
+  if(!selectedSess.length){toast("Select at least one session","error");return;}
+  const items=sessions.filter(s=>selectedSess.includes(s.id));
+  const subtotal=Math.round(items.reduce((a,s)=>a+s.total,0)*100)/100;
+  const gst=Math.round(subtotal*.1*100)/100;
+  const totalGST=Math.round((subtotal+gst)*100)/100;
+  const invNo=fmtInvNo(settings.nextInvoice);
+  const dueInput=document.getElementById("if-due").value;
+  const dueDate=dueInput?new Date(dueInput+"T00:00:00").toISOString():new Date(Date.now()+14*86400000).toISOString();
+  const inv={id:uid(),invoiceNo:invNo,date:new Date().toISOString(),dueDate,
+    client,clientAddress:document.getElementById("if-addr").value.trim(),
+    notes:document.getElementById("if-notes").value,
+    items,subtotal,gst,totalGST,status:"Draft"};
+  invoices.unshift(inv);
+  settings.nextInvoice++;
+  sessions=sessions.map(s=>selectedSess.includes(s.id)?{...s,invoiced:true,invoiceNo:invNo}:s);
+  selectedSess=[];
+  saveAll(); closeModal(); switchTab("invoices"); toast("Invoice "+invNo+" created"); render();
+}
+
+function setInvoiceStatus(id,status){
+  invoices=invoices.map(i=>i.id===id?{...i,status,paidDate:status==="Paid"?new Date().toISOString():i.paidDate}:i);
+  saveAll(); render();
+}
+
+function deleteInvoice(id){
+  if(!confirm("Delete this invoice? Sessions will be restored to uninvoiced.")) return;
+  const inv=invoices.find(i=>i.id===id);
+  invoices=invoices.filter(i=>i.id!==id);
+  if(inv) sessions=sessions.map(s=>s.invoiceNo===inv.invoiceNo?{...s,invoiced:false,invoiceNo:undefined}:s);
+  saveAll(); render(); toast("Invoice deleted");
+}
+
+// ════════════════════════════════════════════════════════
+// MODAL SYSTEM
+// ════════════════════════════════════════════════════════
+function openModal(type, data){
+  const overlay=document.getElementById("overlay");
+  const title=document.getElementById("modal-title");
+  const body=document.getElementById("modal-body");
+  overlay.classList.add("open");
+
+  const crewOptions=`<option value="">— Select operator —</option>`+crew.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("");
+  const attachOpts=ATTACHMENTS.map(a=>`<option value="${a}">${a}</option>`).join("");
+
+  if(type==="session"){
+    title.textContent="▶ Start Live Session";
+    const defRate=settings.rates.excavatorWet;
+    body.innerHTML=`
+      <div class="field"><label>Client / Company *</label>${smartInput("sf-client","clients","e.g. South Coast Sand & Civil")}</div>
+      <div class="field"><label>Site / Location</label>${smartInput("sf-site","sites","e.g. Goolwa North Stage 1")}</div>
+      <div class="field"><label>Machine</label><select id="sf-machine" onchange="sfUpdateRate()">${MACHINES.map(m=>`<option>${m}</option>`).join("")}</select></div>
+      <div class="field" id="sf-att-wrap"><label>Attachment</label><select id="sf-attachment" onchange="sfUpdateRate()">${attachOpts}</select></div>
+      <div class="field"><label>Hire Type</label><select id="sf-hiretype" onchange="sfUpdateRate()">${HIRE_TYPES.map(h=>`<option>${h}</option>`).join("")}</select></div>
+      <div class="field"><label>Operator</label><select id="sf-operator">${crewOptions}</select></div>
+      <div style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;padding:12px 14px;margin-bottom:12px">
+        <div class="field-label" style="margin-bottom:8px">Rate (auto-filled from rate card)</div>
+        <div id="sf-rate-wrap" style="display:flex;align-items:center;gap:8px">
+          <input id="sf-rate" type="number" value="${defRate}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:9px 10px;flex:1"/>
+          <span style="color:#6E6B64;font-size:11px;white-space:nowrap">$/hr ex GST</span>
+        </div>
+        <div id="sf-ownwork-msg" style="display:none;font-size:12px;color:#6E6B64;font-style:italic;padding:6px 0">Own Work — no charge recorded</div>
+      </div>
+      <div class="check-row" id="sf-ah-wrap"><input type="checkbox" id="sf-afterhours" onchange="sfAfterHours()"/>After-hours / weekend surcharge (+$${settings.rates.afterHoursSurcharge}/hr)</div>
+      <div class="field"><label>Notes (optional)</label>${smartInput("sf-notes","notes","Any notes")}</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" style="flex:1" onclick="startSession()">▶ Start Timer Now</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>`;
+  }
+  else if(type==="manual"){
+    title.textContent="✎ Log Manual Session";
+    const today=fmtIsoDate(new Date());
+    const defRate=settings.rates.excavatorWet;
+    body.innerHTML=`
+      <div class="field"><label>Client / Company *</label>${smartInput("mf-client","clients","e.g. South Coast Sand & Civil")}</div>
+      <div class="field"><label>Site / Location</label>${smartInput("mf-site","sites","e.g. Goolwa North Stage 1")}</div>
+      <div class="field"><label>Date *</label><input id="mf-date" type="date" value="${today}"/></div>
+      <div class="field-row">
+        <div class="field"><label>Start Time *</label><input id="mf-start" type="time"/></div>
+        <div class="field"><label>End Time *</label><input id="mf-end" type="time"/></div>
+      </div>
+      <div class="field"><label>Machine</label><select id="mf-machine" onchange="mfUpdateRate()">${MACHINES.map(m=>`<option>${m}</option>`).join("")}</select></div>
+      <div class="field" id="mf-att-wrap"><label>Attachment</label><select id="mf-attachment" onchange="mfUpdateRate()">${attachOpts}</select></div>
+      <div class="field"><label>Hire Type</label><select id="mf-hiretype" onchange="mfUpdateRate()">${HIRE_TYPES.map(h=>`<option>${h}</option>`).join("")}</select></div>
+      <div class="field"><label>Operator</label><select id="mf-operator">${crewOptions}</select></div>
+      <div style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;padding:12px 14px;margin-bottom:12px">
+        <div class="field-label" style="margin-bottom:8px">Rate (auto-filled from rate card)</div>
+        <div id="mf-rate-wrap" style="display:flex;align-items:center;gap:8px">
+          <input id="mf-rate" type="number" value="${defRate}" style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:9px 10px;flex:1"/>
+          <span style="color:#6E6B64;font-size:11px;white-space:nowrap">$/hr ex GST</span>
+        </div>
+        <div id="mf-ownwork-msg" style="display:none;font-size:12px;color:#6E6B64;font-style:italic;padding:6px 0">Own Work — no charge recorded</div>
+      </div>
+      <div style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">Lunch Break</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+          ${[0,15,20,30,45,60].map(m=>`<button type="button" class="btn btn-ghost" id="mf-lb-${m}" onclick="mfSelectLunch(${m})" style="padding:9px 4px;font-size:12px">${m===0?"No Break":m+"min"}</button>`).join("")}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:#6E6B64;white-space:nowrap">Other:</span>
+          <input id="mf-lunch" type="number" min="0" max="120" value="0" placeholder="mins"
+            style="background:#111;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:8px 10px;width:80px;font-family:inherit;font-size:13px"
+            onchange="mfSelectLunchCustom(this.value)"/>
+          <span style="font-size:11px;color:#6E6B64">minutes</span>
+        </div>
+      </div>
+      <div class="check-row" id="mf-ah-wrap"><input type="checkbox" id="mf-afterhours" onchange="mfAfterHours()"/>After-hours / weekend surcharge (+$${settings.rates.afterHoursSurcharge}/hr)</div>
+      <div class="field"><label>Notes (optional)</label>${smartInput("mf-notes","notes","Any notes")}</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" style="flex:1" onclick="saveManualSession()">Save Session</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>`;
+    setTimeout(()=>mfSelectLunch(0),30); // highlight No Break after DOM renders
+  }
+  else if(type==="crew"){
+    title.textContent="+ Add Crew Member";
+    body.innerHTML=`
+      <div class="field"><label>Full Name *</label><input id="cf-name" placeholder="e.g. John Smith"/></div>
+      <div class="field"><label>Role</label><input id="cf-role" placeholder="e.g. Excavator Operator" value="Operator"/></div>
+      <div class="field"><label>Hourly Rate ($)</label><input id="cf-rate" type="number" value="35"/></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" style="flex:1" onclick="addCrew()">Add Crew Member</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>`;
+  }
+  else if(type==="invoice"){
+    title.textContent="🧾 Build Invoice";
+    const uninv=sessions.filter(s=>!s.invoiced);
+    const allSel=uninv.every(s=>selectedSess.includes(s.id));
+    const sessRows=uninv.length===0
+      ?`<div style="padding:16px;color:#6E6B64;font-size:12px;text-align:center">All sessions have been invoiced.</div>`
+      :uninv.map(s=>`
+        <div class="sess-inv-row${selectedSess.includes(s.id)?" sel":""}" onclick="toggleInvSess('${s.id}')">
+          <div>
+            <div style="font-size:12px;color:#F0EDE8;font-weight:${selectedSess.includes(s.id)?700:400}">${fmtDate(s.startTime)} · ${esc(s.machine)}${s.attachment&&s.attachment!=="General Bucket"?" ("+esc(s.attachment)+")":""}</div>
+            <div style="font-size:11px;color:#6E6B64">${esc(s.client||"No client")}${s.site?" · "+esc(s.site):""} · ${fmtHrs(s.duration)}</div>
+          </div>
+          <span style="font-size:13px;font-weight:700;color:#22A05A;margin-left:10px">${fmtCur(s.total)}</span>
+        </div>`).join("");
+
+    const sub=sessions.filter(s=>selectedSess.includes(s.id)).reduce((a,s)=>a+s.total,0);
+    const previewHtml=selectedSess.length?`
+      <div class="totals-preview">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6E6B64;margin-bottom:4px"><span>Subtotal (ex GST)</span><span style="color:#F0EDE8">${fmtCur(sub)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6E6B64;margin-bottom:8px"><span>GST (10%)</span><span style="color:#F0EDE8">${fmtCur(sub*.1)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:#22A05A;border-top:1px solid #282828;padding-top:8px"><span>Total inc. GST</span><span>${fmtCur(sub*1.1)}</span></div>
+      </div>`:"";
+
+    body.innerHTML=`
+      <div class="field"><label>Bill To (Client Name) *</label><input id="if-client" placeholder="e.g. South Coast Sand & Civil"/></div>
+      <div class="field"><label>Client Address</label><input id="if-addr" placeholder="e.g. Victor Harbor SA 5211"/></div>
+      <div class="field"><label>Payment Due Date</label><input id="if-due" type="date"/></div>
+      <div class="field"><label>Notes / Payment Terms</label><textarea id="if-notes">Thank you for your business.</textarea></div>
+      ${divider("Sessions to include")}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:11px;color:#6E6B64">${selectedSess.length} of ${uninv.length} selected</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="selectAllInv(true)">All</button>
+          <button class="btn btn-ghost btn-sm" onclick="selectAllInv(false)">None</button>
+        </div>
+      </div>
+      <div class="session-list-inv" style="margin-bottom:12px">${sessRows}</div>
+      ${previewHtml}
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-success" style="flex:1" onclick="buildInvoice()" ${!selectedSess.length?"disabled":""}>Generate Invoice</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>`;
+  }
+  else if(type==="viewInv"){
+    const inv=invoices.find(i=>i.id===data);
+    if(!inv){closeModal();return;}
+    title.textContent=inv.invoiceNo;
+    const itemRows=inv.items.map((item,i)=>`
+      <div class="line-item-row" style="${i<inv.items.length-1?"":"border-bottom:none"}">
+        <div style="flex:1">
+          <div style="font-size:12px;color:#F0EDE8;font-weight:700">${esc(item.machine)} — ${esc(item.hireType)}</div>
+          <div style="font-size:11px;color:#6E6B64;margin-top:2px">${fmtDate(item.startTime)} · ${esc(item.site||"Site not specified")} · ${fmtHrs(item.duration)} @ ${fmtCur(item.rate)}/hr</div>
+          ${item.attachment&&item.attachment!=="General Bucket"?`<div style="font-size:10px;color:#F5C518;margin-top:2px">Attachment: ${esc(item.attachment)}</div>`:""}
+          ${item.operator?`<div style="font-size:10px;color:#6E6B64;margin-top:1px">Operator: ${esc(item.operator)}</div>`:""}
+          ${item.lunchBreak>0?`<div style="font-size:10px;color:#F5C518;margin-top:1px">☕ ${item.lunchBreak}min lunch deducted from billable hours</div>`:""}
+        </div>
+        <div style="font-size:13px;font-weight:800;color:#22A05A;flex-shrink:0">${fmtCur(item.total)}</div>
+      </div>`).join("");
+
+    const col=STATUS_COL[inv.status]||"#6E6B64";
+    body.innerHTML=`
+      <div class="inv-header">
+        <div style="font-size:17px;font-weight:800;color:#fff">${esc(settings.businessName)}</div>
+        ${settings.abn?`<div style="font-size:11px;color:#ffffffbb;margin-top:3px">ABN: ${esc(settings.abn)}</div>`:""}
+        ${settings.address?`<div style="font-size:11px;color:#ffffffbb">${esc(settings.address)}</div>`:""}
+        ${settings.phone?`<div style="font-size:11px;color:#ffffffbb">${esc(settings.phone)}</div>`:""}
+        ${settings.email?`<div style="font-size:11px;color:#ffffffbb">${esc(settings.email)}</div>`:""}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;gap:10px;margin-bottom:12px">
+        <div>
+          <div style="color:#6E6B64;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">BILL TO</div>
+          <div style="color:#F0EDE8;font-weight:700">${esc(inv.client)}</div>
+          ${inv.clientAddress?`<div style="color:#6E6B64">${esc(inv.clientAddress)}</div>`:""}
+        </div>
+        <div style="text-align:right">
+          <div style="color:#6E6B64;font-size:10px">Invoice</div>
+          <div style="color:#F0EDE8;font-weight:700">${inv.invoiceNo}</div>
+          <div style="color:#6E6B64;font-size:10px;margin-top:6px">Issued</div>
+          <div style="color:#F0EDE8">${fmtDate(inv.date)}</div>
+          <div style="color:#6E6B64;font-size:10px;margin-top:6px">Due</div>
+          <div style="color:${inv.status==="Overdue"?"#D93B3B":"#F0EDE8"};font-weight:700">${fmtDate(inv.dueDate)}</div>
+        </div>
+      </div>
+      ${badge(inv.status,col)}
+      <div class="line-items" style="margin-top:12px">
+        <div class="line-item-head"><span>Description</span><span>Amount</span></div>
+        ${itemRows}
+      </div>
+      <div class="totals-box">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:#6E6B64">Subtotal (ex GST)</span><span style="color:#F0EDE8">${fmtCur(inv.subtotal)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px"><span style="color:#6E6B64">GST (10%)</span><span style="color:#F0EDE8">${fmtCur(inv.gst)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:#22A05A;border-top:1px solid #282828;padding-top:10px"><span>TOTAL DUE</span><span>${fmtCur(inv.totalGST)}</span></div>
+      </div>
+      ${(settings.bsb||settings.account)?`
+        <div class="pay-box">
+          <div style="font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Payment Details</div>
+          ${settings.accountName?`<div style="color:#F0EDE8">Account Name: <strong>${esc(settings.accountName)}</strong></div>`:""}
+          ${settings.bsb?`<div style="color:#F0EDE8;margin-top:4px">BSB: <strong>${esc(settings.bsb)}</strong></div>`:""}
+          ${settings.account?`<div style="color:#F0EDE8;margin-top:4px">Account #: <strong>${esc(settings.account)}</strong></div>`:""}
+          <div style="color:#6E6B64;margin-top:6px">Reference: ${inv.invoiceNo}</div>
+        </div>`:""}
+      ${inv.notes?`<div style="font-size:12px;color:#6E6B64;font-style:italic;border-top:1px solid #282828;padding-top:10px;margin-bottom:14px">${esc(inv.notes)}</div>`:""}
+      <div>
+        <div style="font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Update Status</div>
+        <div class="inv-status-row">
+          ${INV_STATUS.map(s=>`<button class="btn btn-sm ${inv.status===s?"btn-primary":"btn-ghost"}" onclick="setInvoiceStatus('${inv.id}','${s}');openModal('viewInv','${inv.id}')">${s}</button>`).join("")}
+        </div>
+      </div>`;
+  }
+  else if(type==="settings"){
+    title.textContent="⚙ Business Settings";
+    const r=settings.rates;
+    const rateField=(label,key,unit="/hr")=>`
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase">${label}</label>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${unit==="/hr"?'<span style="color:#6E6B64;font-size:13px">$</span>':""}
+          <input type="number" value="${r[key]}" onchange="updateRate('${key}',this.value)"
+            style="background:#0D0D0D;border:1px solid #282828;border-radius:8px;color:#F0EDE8;padding:7px 10px;font-size:13px;width:100%;font-family:inherit"/>
+          <span style="color:#6E6B64;font-size:11px;white-space:nowrap">${unit}</span>
+        </div>
+      </div>`;
+
+    body.innerHTML=`
+      <div class="field"><label>Business Name</label><input id="set-name" value="${esc(settings.businessName)}" onchange="saveSetting('businessName',this.value)"/></div>
+      <div class="field"><label>ABN</label><input id="set-abn" value="${esc(settings.abn)}" placeholder="12 345 678 901" onchange="saveSetting('abn',this.value)"/></div>
+      <div class="field"><label>Address</label><input id="set-addr" value="${esc(settings.address)}" onchange="saveSetting('address',this.value)"/></div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input value="${esc(settings.phone)}" placeholder="04XX XXX XXX" onchange="saveSetting('phone',this.value)"/></div>
+        <div class="field"><label>Email</label><input value="${esc(settings.email)}" placeholder="you@email.com" onchange="saveSetting('email',this.value)"/></div>
+      </div>
+
+      ${divider("🚜 Excavator — ZX55U Wet Hire Rates")}
+      <div class="rate-grid">
+        ${rateField("General Bucket","excavatorWet")}
+        ${rateField("Tilt Hitch","excavatorWetTilt")}
+        ${rateField("Rock Breaker","excavatorWetRock")}
+        ${rateField("Auger","excavatorWetAuger")}
+        ${rateField("Trenching Bucket","excavatorWetTrenching")}
+        ${rateField("Clean-up Bucket","excavatorWetCleanup")}
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;color:#2878CC;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Dry Hire Rate</div>
+        <div style="max-width:200px">${rateField("Machine only","excavatorDry")}</div>
+      </div>
+
+      ${divider("🚛 Hino 700 — Truck Rates")}
+      <div class="rate-grid">
+        ${rateField("Wet Hire — Local","truckWet")}
+        ${rateField("Wet Hire — Regional","truckWetRegional")}
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;color:#2878CC;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Dry Hire Rate</div>
+        <div style="max-width:200px">${rateField("Truck only","truckDry")}</div>
+      </div>
+
+      ${divider("Extras & Minimums")}
+      <div class="rate-grid">
+        ${rateField("Min Call-out Hours","minHours","hrs")}
+        ${rateField("After-hours Surcharge","afterHoursSurcharge","$/hr")}
+        ${rateField("Mobilisation — Local","mobilisationLocal","$")}
+        ${rateField("Mobilisation — Regional","mobilisationRegional","$")}
+      </div>
+
+      ${divider("Bank Details")}
+      <div class="field"><label>Account Name</label><input value="${esc(settings.accountName)}" onchange="saveSetting('accountName',this.value)"/></div>
+      <div class="field-row">
+        <div class="field"><label>BSB</label><input value="${esc(settings.bsb)}" placeholder="000-000" onchange="saveSetting('bsb',this.value)"/></div>
+        <div class="field"><label>Account Number</label><input value="${esc(settings.account)}" onchange="saveSetting('account',this.value)"/></div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();toast('✓ Settings saved')">Save &amp; Close</button>
+        <button class="btn btn-ghost" onclick="exportData()" title="Download all your data as a backup file">💾 Export Data</button>
+      </div>`;
+  }
+}
+
+function saveSetting(key,val){settings[key]=val;saveAll();document.getElementById("biz-name").textContent=settings.businessName;}
+function updateRate(key,val){settings.rates[key]=parseFloat(val)||0;saveAll();}
+
+function sfUpdateRate(){
+  const machine=document.getElementById("sf-machine")?.value;
+  const hireType=document.getElementById("sf-hiretype")?.value;
+  const attachment=document.getElementById("sf-attachment")?.value;
+  const attWrap=document.getElementById("sf-att-wrap");
+  const rateWrap=document.getElementById("sf-rate-wrap");
+  const ownMsg=document.getElementById("sf-ownwork-msg");
+  const ahWrap=document.getElementById("sf-ah-wrap");
+  if(attWrap) attWrap.style.display=machine==="Hino 700"?"none":"flex";
+  if(rateWrap) rateWrap.style.display=hireType==="Own Work"?"none":"flex";
+  if(ownMsg) ownMsg.style.display=hireType==="Own Work"?"block":"none";
+  if(ahWrap) ahWrap.style.display=hireType==="Own Work"?"none":"flex";
+  const rateEl=document.getElementById("sf-rate");
+  if(rateEl&&hireType!=="Own Work"){
+    const ah=document.getElementById("sf-afterhours")?.checked?settings.rates.afterHoursSurcharge:0;
+    rateEl.value=lookupRate(machine,hireType,attachment)+ah;
+  }
+}
+function sfAfterHours(){
+  const machine=document.getElementById("sf-machine")?.value;
+  const hireType=document.getElementById("sf-hiretype")?.value;
+  const attachment=document.getElementById("sf-attachment")?.value;
+  const ah=document.getElementById("sf-afterhours")?.checked?settings.rates.afterHoursSurcharge:0;
+  const rateEl=document.getElementById("sf-rate");
+  if(rateEl) rateEl.value=lookupRate(machine,hireType,attachment)+ah;
+}
+function mfUpdateRate(){
+  const machine=document.getElementById("mf-machine")?.value;
+  const hireType=document.getElementById("mf-hiretype")?.value;
+  const attachment=document.getElementById("mf-attachment")?.value;
+  const attWrap=document.getElementById("mf-att-wrap");
+  const rateWrap=document.getElementById("mf-rate-wrap");
+  const ownMsg=document.getElementById("mf-ownwork-msg");
+  const ahWrap=document.getElementById("mf-ah-wrap");
+  if(attWrap) attWrap.style.display=machine==="Hino 700"?"none":"flex";
+  if(rateWrap) rateWrap.style.display=hireType==="Own Work"?"none":"flex";
+  if(ownMsg) ownMsg.style.display=hireType==="Own Work"?"block":"none";
+  if(ahWrap) ahWrap.style.display=hireType==="Own Work"?"none":"flex";
+  const rateEl=document.getElementById("mf-rate");
+  if(rateEl&&hireType!=="Own Work"){
+    const ah=document.getElementById("mf-afterhours")?.checked?settings.rates.afterHoursSurcharge:0;
+    rateEl.value=lookupRate(machine,hireType,attachment)+ah;
+  }
+}
+function mfAfterHours(){
+  const machine=document.getElementById("mf-machine")?.value;
+  const hireType=document.getElementById("mf-hiretype")?.value;
+  const attachment=document.getElementById("mf-attachment")?.value;
+  const ah=document.getElementById("mf-afterhours")?.checked?settings.rates.afterHoursSurcharge:0;
+  const rateEl=document.getElementById("mf-rate");
+  if(rateEl) rateEl.value=lookupRate(machine,hireType,attachment)+ah;
+}
+
+function mfSelectLunch(mins){
+  const lunchEl=document.getElementById("mf-lunch");
+  if(lunchEl) lunchEl.value=mins;
+  [0,15,20,30,45,60].forEach(x=>{
+    const b=document.getElementById("mf-lb-"+x);
+    if(b) b.style.cssText="padding:9px 4px;font-size:12px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;width:100%;border:1px solid "+(x===mins?"#E8580A;background:#E8580A;color:#fff":"#282828;background:transparent;color:#6E6B64");
+  });
+}
+function mfSelectLunchCustom(val){
+  const lunchEl=document.getElementById("mf-lunch");
+  if(lunchEl) lunchEl.value=val||0;
+  [0,15,20,30,45,60].forEach(x=>{
+    const b=document.getElementById("mf-lb-"+x);
+    if(b) b.style.cssText="padding:9px 4px;font-size:12px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;width:100%;border:1px solid #282828;background:transparent;color:#6E6B64";
+  });
+}
+
+function toggleInvSess(id){
+  const s=sessions.find(x=>x.id===id);
+  if(s&&s.invoiced) return;
+  if(selectedSess.includes(id)) selectedSess=selectedSess.filter(x=>x!==id);
+  else selectedSess.push(id);
+  openModal("invoice"); // re-render modal with updated selection
+}
+function selectAllInv(all){
+  const uninv=sessions.filter(s=>!s.invoiced);
+  selectedSess=all?uninv.map(s=>s.id):[];
+  openModal("invoice");
+}
+
+function closeModal(){document.getElementById("overlay").classList.remove("open");}
+function handleOverlayClick(e){if(e.target===document.getElementById("overlay"))closeModal();}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+// ════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ════════════════════════════════════════════════════════
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll(".nav-tab").forEach(b=>{
+    b.classList.toggle("active",b.dataset.tab===tab);
+  });
+  render();
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════
+function render(){
+  const main=document.getElementById("main");
+
+  if(currentTab==="dashboard") main.innerHTML=renderDashboard();
+  else if(currentTab==="sessions") main.innerHTML=renderSessions();
+  else if(currentTab==="crew") main.innerHTML=renderCrew();
+  else if(currentTab==="invoices") main.innerHTML=renderInvoices();
+  else if(currentTab==="rates") main.innerHTML=renderRates();
+}
+
+function renderDashboard(){
+  const totalHrs=sessions.reduce((a,s)=>a+(s.duration||0),0);
+  const totalRev=sessions.reduce((a,s)=>a+(s.total||0),0);
+  const weekAgo=new Date(Date.now()-7*86400000);
+  const weekSess=sessions.filter(s=>new Date(s.startTime)>=weekAgo);
+  const weekHrs=weekSess.reduce((a,s)=>a+(s.duration||0),0);
+  const outstanding=invoices.filter(i=>i.status!=="Paid").reduce((a,i)=>a+(i.totalGST||0),0);
+  const uninvCount=sessions.filter(s=>!s.invoiced).length;
+
+  const recentRows=sessions.slice(0,5).map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #282828">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:#F0EDE8;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          ${esc(s.machine)} ${badge(s.hireType,HIRE_COL[s.hireType]||"#6E6B64",true)}
+          ${s.invoiced?badge("Invoiced","#22A05A",true):""}
+        </div>
+        <div style="font-size:11px;color:#6E6B64;margin-top:2px">${fmtDate(s.startTime)} · ${esc(s.client||"No client")}${s.site?" · "+esc(s.site):""}</div>
+      </div>
+      <div style="text-align:right;margin-left:10px;flex-shrink:0">
+        <div style="font-size:14px;font-weight:800;color:#22A05A">${fmtCur(s.total)}</div>
+        <div style="font-size:10px;color:#6E6B64">${fmtHrs(s.duration)}</div>
+        ${!s.invoiced?`<button onclick="editSession('${s.id}')" style="background:none;border:1px solid #333;border-radius:6px;color:#C8C4BE;font-size:10px;cursor:pointer;padding:2px 7px;margin-top:3px">✏️ edit</button>`:""}
+      </div>
+    </div>`).join("")||`<div class="empty"><div class="empty-icon">⏱</div><div>No sessions yet</div></div>`;
+
+  const machineRows=["Hitachi ZX55U","Hino 700","Both"].filter(m=>sessions.some(s=>s.machine===m)).map(m=>{
+    const ms=sessions.filter(s=>s.machine===m);
+    const mHrs=ms.reduce((a,s)=>a+(s.duration||0),0);
+    const mRev=ms.reduce((a,s)=>a+(s.total||0),0);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #282828">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#F0EDE8">${m}</div>
+        <div style="font-size:11px;color:#6E6B64">${ms.length} session${ms.length!==1?"s":""}</div>
+      </div>
+      <div style="display:flex;gap:18px;text-align:right">
+        <div><div style="font-size:13px;color:#E8580A">${fmtHrs(mHrs)}</div><div style="font-size:10px;color:#6E6B64">Hours</div></div>
+        <div><div style="font-size:13px;color:#22A05A">${fmtRev(mRev)}</div><div style="font-size:10px;color:#6E6B64">Revenue</div></div>
+      </div>
+    </div>`;
+  }).join("")||`<div style="color:#6E6B64;font-size:13px;padding:10px 0">No data yet</div>`;
+
+  return `
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">All-time Hours</div><div class="stat-value" style="color:#E8580A">${fmtHrs(totalHrs)}</div><div style="font-size:11px;color:#6E6B64;margin-top:5px">${sessions.length} sessions</div></div>
+      <div class="stat"><div class="stat-label">This Week</div><div class="stat-value" style="color:#F5C518">${fmtHrs(weekHrs)}</div><div style="font-size:11px;color:#6E6B64;margin-top:5px">${weekSess.length} sessions</div></div>
+      <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" style="color:#22A05A">${fmtCur(totalRev)}</div><div style="font-size:11px;color:#6E6B64;margin-top:5px">Ex GST</div></div>
+      <div class="stat"><div class="stat-label">Outstanding</div><div class="stat-value" style="color:${outstanding>0?"#D93B3B":"#6E6B64"}">${fmtCur(outstanding)}</div><div style="font-size:11px;color:#6E6B64;margin-top:5px">${invoices.filter(i=>i.status!=="Paid").length} inv.</div></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:#6E6B64;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px">Quick Actions</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${activeSession
+          ?`<button class="btn btn-danger" onclick="stopSession()">⏹ Stop Session</button>`
+          :`<button class="btn btn-primary" onclick="openModal('session')">▶ Start Live Session</button>`}
+        <button class="btn btn-ghost" onclick="openModal('manual')">✎ Manual Session</button>
+        <button class="btn btn-success" onclick="openInvoiceModal()">🧾 Build Invoice</button>
+      </div>
+      ${uninvCount>0?`<div style="font-size:11px;color:#E8580A;margin-top:10px">⚡ ${uninvCount} session${uninvCount!==1?"s":""} ready to invoice</div>`:""}
+    </div>
+
+    <div class="card">
+      <div class="sec-head"><div class="sec-title">Recent Sessions</div><button class="btn btn-ghost btn-sm" onclick="switchTab('sessions')">View All</button></div>
+      ${recentRows}
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="margin-bottom:12px">Machine Summary</div>
+      ${machineRows}
+    </div>`;
+}
+
+function fmtRev(n){return fmtCur(n);}
+
+function renderSessions(){
+  const uninvCount=sessions.filter(s=>!s.invoiced).length;
+  const rows=sessions.map(s=>{
+    const sel=selectedSess.includes(s.id);
+    return `<div class="session-item${sel?" selected":""}${s.invoiced?" invoiced":""}" onclick="toggleSelectSession('${s.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:800;color:#F0EDE8">${esc(s.machine)}</span>
+            ${badge(s.hireType,HIRE_COL[s.hireType]||"#6E6B64",true)}
+            ${s.attachment&&s.attachment!=="General Bucket"?badge(s.attachment,"#F5C518",true):""}
+            ${s.invoiced?badge(s.invoiceNo||"Invoiced","#22A05A",true):""}
+          </div>
+          <div style="font-size:12px;color:#C8C4BE">${esc(s.client||"")}${s.site?" · "+esc(s.site):""}</div>
+          <div style="font-size:11px;color:#6E6B64;margin-top:3px">${fmtDate(s.startTime)} · ${fmtTime(s.startTime)} → ${fmtTime(s.endTime)}${s.operator?" · "+esc(s.operator):""}</div>
+          ${s.notes?`<div style="font-size:11px;color:#6E6B64;margin-top:3px;font-style:italic">${esc(s.notes)}</div>`:""}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:16px;font-weight:800;color:#22A05A">${fmtCur(s.total)}</div>
+          <div style="font-size:11px;color:#6E6B64;margin-top:2px">${fmtHrs(s.duration)} @ ${fmtCur(s.rate)}/hr</div>
+          ${s.lunchBreak>0?`<div style="font-size:10px;color:#F5C518;margin-top:2px">☕ ${s.lunchBreak}min lunch deducted</div>`:""}
+          ${!s.invoiced?`
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+              <button onclick="event.stopPropagation();editSession('${s.id}')" style="background:none;border:1px solid #333;border-radius:6px;color:#C8C4BE;font-size:11px;cursor:pointer;padding:3px 9px">✏️ edit</button>
+              <button onclick="event.stopPropagation();deleteSession('${s.id}')" style="background:none;border:none;color:#6E6B64;font-size:11px;cursor:pointer;padding:3px 0">🗑 delete</button>
+            </div>`:""}
+        </div>
+      </div>
+    </div>`;
+  }).join("")||`<div class="card"><div class="empty"><div class="empty-icon">⏱</div><div>No sessions yet. Start or log a session above.</div></div></div>`;
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:11px;color:#6E6B64">${selectedSess.length>0?selectedSess.length+" selected":sessions.length+" session"+(sessions.length!==1?"s":"")}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${selectedSess.length>0?`<button class="btn btn-success btn-sm" onclick="openInvoiceModal()">🧾 Invoice ${selectedSess.length}</button>`:""}
+        <button class="btn btn-ghost btn-sm" onclick="openModal('manual')">✎ Manual</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('session')">▶ Live</button>
+      </div>
+    </div>
+    ${rows}`;
+}
+
+function renderCrew(){
+  const weekAgo=new Date(Date.now()-7*86400000);
+  const crewCards=crew.map(m=>{
+    const ms=sessions.filter(s=>s.operator===m.name);
+    const mHrs=ms.reduce((a,s)=>a+(s.duration||0),0);
+    const wHrs=ms.filter(s=>new Date(s.startTime)>=weekAgo).reduce((a,s)=>a+(s.duration||0),0);
+    const last3=ms.slice(0,3).map(s=>`
+      <div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:#6E6B64">
+        <span>${fmtDate(s.startTime)} · ${esc(s.machine)}${s.client?" · "+esc(s.client):""}</span>
+        <span style="color:#C8C4BE;margin-left:8px">${fmtHrs(s.duration)}</span>
+      </div>`).join("");
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#F0EDE8">${esc(m.name)}</div>
+          <div style="font-size:11px;color:#6E6B64;margin-top:2px">${esc(m.role)} · $${m.rate}/hr</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px;color:#E8580A;font-weight:700">${fmtHrs(mHrs)} total</div>
+          <div style="font-size:11px;color:#6E6B64">${fmtHrs(wHrs)} this week</div>
+          <div style="font-size:12px;color:#F5C518;margin-top:2px">Est. ${fmtCur(mHrs*m.rate)}</div>
+        </div>
+      </div>
+      ${ms.length>0?`<div style="margin-top:12px;border-top:1px solid #282828;padding-top:10px">
+        <div style="font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Last 3 Sessions</div>
+        ${last3}</div>`:""}
+      <div style="margin-top:12px">
+        <button class="btn btn-ghost btn-sm" onclick="deleteCrew('${m.id}')">Remove</button>
+      </div>
+    </div>`;
+  }).join("")||`<div class="card"><div class="empty"><div class="empty-icon">👷</div><div>No crew members yet. Add operators and drivers above.</div></div></div>`;
+
+  const hasPay=crew.length>0&&sessions.some(s=>crew.some(c=>c.name===s.operator));
+  const payRows=hasPay?crew.map(m=>{
+    const hrs=sessions.filter(s=>s.operator===m.name).reduce((a,s)=>a+(s.duration||0),0);
+    if(!hrs) return "";
+    return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #282828">
+      <span style="color:#F0EDE8">${esc(m.name)}</span>
+      <span style="color:#6E6B64">${fmtHrs(hrs)} × $${m.rate}/hr = <span style="color:#F5C518;font-weight:700">${fmtCur(hrs*m.rate)}</span></span>
+    </div>`;}).join(""):"";
+
+  return `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-primary btn-sm" onclick="openModal('crew')">+ Add Crew Member</button>
+    </div>
+    ${crewCards}
+    ${hasPay?`<div class="card" style="border-color:#1A6B3C40">
+      <div style="font-size:11px;color:#22A05A;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">Payroll Summary (All Time)</div>
+      ${payRows}
+    </div>`:""}`;
+}
+
+function renderInvoices(){
+  const rows=invoices.map(inv=>{
+    const col=STATUS_COL[inv.status]||"#6E6B64";
+    const statusBtns=INV_STATUS.map(s=>`<button class="btn btn-sm ${inv.status===s?"btn-primary":"btn-ghost"}" onclick="event.stopPropagation();setInvoiceStatus('${inv.id}','${s}');render()">${s}</button>`).join("");
+    return `<div class="card card-click" onclick="openModal('viewInv','${inv.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:15px;font-weight:800;color:#F0EDE8">${inv.invoiceNo}</span>
+            ${badge(inv.status,col)}
+          </div>
+          <div style="font-size:13px;color:#C8C4BE;margin-top:4px">${esc(inv.client)}</div>
+          <div style="font-size:11px;color:#6E6B64;margin-top:2px">Issued ${fmtDate(inv.date)} · Due ${fmtDate(inv.dueDate)} · ${inv.items.length} item${inv.items.length!==1?"s":""}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:18px;font-weight:800;color:#22A05A">${fmtCur(inv.totalGST)}</div>
+          <div style="font-size:10px;color:#6E6B64">inc. GST</div>
+        </div>
+      </div>
+      <div class="inv-status-row" onclick="event.stopPropagation()">
+        ${statusBtns}
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteInvoice('${inv.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join("")||`<div class="card"><div class="empty"><div class="empty-icon">🧾</div><div>No invoices yet. Select sessions and build your first invoice.</div></div></div>`;
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:11px;color:#6E6B64">${invoices.length} invoice${invoices.length!==1?"s":""}</div>
+      <button class="btn btn-success btn-sm" onclick="openInvoiceModal()">+ New Invoice</button>
+    </div>
+    ${rows}`;
+}
+
+function renderRates(){
+  const r=settings.rates;
+  const rateRow=(label,val,color="#22A05A",sub)=>`
+    <div class="rate-row">
+      <div>
+        <div style="font-size:13px;color:#F0EDE8">${label}</div>
+        ${sub?`<div style="font-size:10px;color:#6E6B64;margin-top:1px">${sub}</div>`:""}
+      </div>
+      <div style="text-align:right">
+        <span style="font-size:15px;font-weight:800;color:${color}">$${val}</span>
+        <span style="font-size:11px;color:#6E6B64">/hr</span>
+      </div>
+    </div>`;
+
+  const markets=[
+    {label:"ZX55U wet hire",low:120,high:140,your:r.excavatorWet},
+    {label:"ZX55U rock breaker",low:140,high:165,your:r.excavatorWetRock},
+    {label:"Hino 700 wet hire",low:120,high:155,your:r.truckWet},
+    {label:"Hino 700 regional",low:140,high:160,your:r.truckWetRegional},
+  ];
+  const mktRows=markets.map(m=>{
+    const pct=Math.min(100,Math.max(0,((m.your-m.low)/(m.high-m.low))*100));
+    const inRange=m.your>=m.low&&m.your<=m.high;
+    const above=m.your>m.high;
+    const col=above?"#F5C518":inRange?"#22A05A":"#D93B3B";
+    const lbl=above?"Above market":inRange?"In range":"Below market";
+    return `<div class="mbar" style="padding:10px 0;border-bottom:1px solid #282828">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:12px;color:#F0EDE8">${m.label}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:11px;color:#6E6B64">$${m.low}–$${m.high}</span>
+          ${badge(lbl,col,true)}
+        </div>
+      </div>
+      <div class="mbar-track"><div class="mbar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="mbar-labels"><span>$${m.low}</span><span style="color:${col};font-weight:700">Your rate: $${m.your}/hr</span><span>$${m.high}</span></div>
+    </div>`;
+  }).join("");
+
+  return `
+    <div class="card" style="border-color:#E8580A40;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#F0EDE8">🚜 Hitachi ZX55U</div>
+          <div style="font-size:11px;color:#6E6B64">2026 · Tilt Quick Hitch · Experienced Operator</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('settings')">Edit</button>
+      </div>
+      <div style="font-size:10px;color:#E8580A;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:2px">WET HIRE</div>
+      ${rateRow("General Bucket",r.excavatorWet)}
+      ${rateRow("Tilt Hitch",r.excavatorWetTilt,"#F5C518","Premium attachment")}
+      ${rateRow("Rock Breaker",r.excavatorWetRock,"#F5C518","Premium + wear")}
+      ${rateRow("Auger",r.excavatorWetAuger,"#F5C518","Premium attachment")}
+      ${rateRow("Trenching Bucket",r.excavatorWetTrenching)}
+      ${rateRow("Clean-up Bucket",r.excavatorWetCleanup)}
+      <div style="font-size:10px;color:#2878CC;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-top:12px;margin-bottom:2px">DRY HIRE</div>
+      ${rateRow("Machine only — no operator",r.excavatorDry,"#2878CC","Client must hold High Risk Work Licence")}
+    </div>
+
+    <div class="card" style="border-color:#2878CC40;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#F0EDE8">🚛 Hino 700</div>
+          <div style="font-size:11px;color:#6E6B64">2007 · Tipper · Experienced Driver</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('settings')">Edit</button>
+      </div>
+      <div style="font-size:10px;color:#E8580A;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:2px">WET HIRE</div>
+      ${rateRow("Local — Fleurieu Peninsula",r.truckWet,"#22A05A","Within ~30 min of Victor Harbor")}
+      ${rateRow("Regional SA",r.truckWetRegional,"#F5C518","Barossa, McLaren Vale, Port Augusta etc.")}
+      <div style="font-size:10px;color:#2878CC;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-top:12px;margin-bottom:2px">DRY HIRE</div>
+      ${rateRow("Truck only — no driver",r.truckDry,"#2878CC","Client must hold HR licence — get written agreement")}
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:800;color:#F0EDE8;margin-bottom:12px">Extras & Minimums</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        ${[["Min. Call-out",""+r.minHours+" hours","#E8580A"],["After-hours","+$"+r.afterHoursSurcharge+"/hr","#F5C518"],["Mob. Local","$"+r.mobilisationLocal,"#6E6B64"],["Mob. Regional","$"+r.mobilisationRegional,"#6E6B64"]].map(([l,v,c])=>`
+          <div style="background:#0D0D0D;border-radius:8px;padding:12px 14px">
+            <div style="font-size:10px;color:#6E6B64;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">${l}</div>
+            <div style="font-size:16px;font-weight:800;color:${c}">${v}</div>
+          </div>`).join("")}
+      </div>
+      <div style="background:#E8580A12;border:1px solid #E8580A30;border-radius:8px;padding:10px 14px;font-size:12px;color:#C8C4BE">
+        💡 After-hours applies outside <strong>Mon–Fri 7am–5pm</strong>. Always state on quote.
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#1A6B3C40">
+      <div style="font-size:13px;font-weight:800;color:#F0EDE8;margin-bottom:12px">📊 SA Market Reference (2025/26)</div>
+      ${mktRows}
+    </div>`;
+}
+
+function openInvoiceModal(){
+  selectedSess=sessions.filter(s=>!s.invoiced).map(s=>s.id);
+  openModal("invoice");
+}
+
+// ════════════════════════════════════════════════════════
+// EXPORT DATA
+// ════════════════════════════════════════════════════════
+function exportData(){
+  const data={sessions,crew,invoices,settings,exportedAt:new Date().toISOString(),version:"1.0"};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="AngelEarthworks_Backup_"+new Date().toISOString().split("T")[0]+".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("Data exported — save the file safely");
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+document.getElementById("biz-name").textContent=settings.businessName;
+updateBanner();
+render();
+
+// Restore active session timer if app was closed mid-session
+if(activeSession) startTimer();
+</script>
+</body>
+</html>
